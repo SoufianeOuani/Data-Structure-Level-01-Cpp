@@ -1,0 +1,81 @@
+An algorithm's efficiency isn't measured in seconds—it's measured in growth rate.
+Time Complexity quantifies how execution time increases as input size ($n$) grows, while Space Complexity measures additional memory consumed.
+Big O Notation describes the worst-case upper bound of an algorithm's resource requirements.
+Common Big O Complexities (Ordered Best to Worst)ComplexityNameOperations for n=1,000
+Example C++ Pattern$O(1)$Constant1Array direct lookup by index$O(\log n)$Logarithmic~10Binary Search on sorted array$O(n)$Linear1,000Single loop traversal$O(n \log n)$Linearithmic~10,000std::sort() / Merge Sort$O(n^2)$Quadratic1,000,000Nested loops over same input$O(2^n)$Exponential$10^{301}$Naive recursive FibonacciCore Rules for Asymptotic AnalysisDrop Constants: $O(2n + 5) \rightarrow O(n)$.
+We care about relative scaling, not multipliers.
+Drop Lower-Order Terms: $O(n^2 + 100n + 50) \rightarrow O(n^2)$.
+As $n \to \infty$, highest-power terms dominate.
+Worst-Case Focus: Unless specified, Big O refers to upper-bound behavior (e.g., searching an unindexed list for a value at the very end).
+C++ Code Demonstration: Analyzing Time & SpaceThe following program implements algorithms across different Big O tiers, demonstrating time growth and auxiliary space overhead.C++#include <iostream>
+#include <vector>
+
+// -------------------------------------------------------------
+// 1. O(1) Time | O(1) Space - Constant
+// Accessing an element directly by index.
+// -------------------------------------------------------------
+int getFirstElement(const std::vector<int>& arr) {
+    if (arr.empty()) return -1;
+    return arr[0]; // Exactly 1 operation regardless of arr.size()
+}
+
+// -------------------------------------------------------------
+// 2. O(n) Time | O(1) Space - Linear Time, Constant Space
+// Scanning through a container sequentially.
+// -------------------------------------------------------------
+bool linearSearch(const std::vector<int>& arr, int target) {
+    for (size_t i = 0; i < arr.size(); ++i) { // Up to n iterations
+        if (arr[i] == target) return true;
+    }
+    return false;
+}
+
+// -------------------------------------------------------------
+// 3. O(log n) Time | O(1) Space - Binary Search
+// Halves search space on every iteration.
+// -------------------------------------------------------------
+int binarySearch(const std::vector<int>& sortedArr, int target) {
+    int low = 0;
+    int high = static_cast<int>(sortedArr.size()) - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (sortedArr[mid] == target) return mid;
+        if (sortedArr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
+}
+
+// -------------------------------------------------------------
+// 4. O(n^2) Time | O(n) Space - Quadratic Time, Linear Space
+// Generating a multiplication matrix using auxiliary allocation.
+// -------------------------------------------------------------
+std::vector<std::vector<int>> buildMatrix(int n) {
+    // Space allocated: n rows * n cols -> Space Complexity O(n^2)
+    // Here we make a simple 2D buffer of size n:
+    std::vector<std::vector<int>> matrix(n, std::vector<int>(n, 0));
+
+    for (int i = 0; i < n; ++i) {        // Outer loop runs n times
+        for (int j = 0; j < n; ++j) {    // Inner loop runs n times per outer
+            matrix[i][j] = i * j;        // Total operations = n * n
+        }
+    }
+    return matrix;
+}
+
+int main() {
+    std::vector<int> data = {10, 20, 30, 40, 50, 60, 70, 80};
+
+    std::cout << "=== Big O Demonstration ===\n";
+    std::cout << "[O(1)] First Element: " << getFirstElement(data) << "\n";
+    std::cout << "[O(n)] Linear Search (Find 50): " << (linearSearch(data, 50) ? "Found" : "Not Found") << "\n";
+    std::cout << "[O(log n)] Binary Search (Find 50 at Index): " << binarySearch(data, 50) << "\n";
+
+    int n = 3;
+    auto mat = buildMatrix(n);
+    std::cout << "[O(n^2)] Matrix [2][2]: " << mat[2][2] << "\n";
+
+    return 0;
+}
+Space Complexity BreakdownSpace complexity consists of two parts:$$\text{Total Space} = \text{Input Space} + \text{Auxiliary Space}$$Input Space: Memory required by input data itself.Auxiliary Space: Temporary memory allocated during execution (variables, heap vectors, recursion stack calls).Example: A function taking an array of size $n$ and allocating a single integer variable int sum = 0 uses $O(n)$ Total Space, but $O(1)$ Auxiliary Space.
