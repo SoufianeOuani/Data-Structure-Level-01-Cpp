@@ -1,0 +1,72 @@
+Data structures are broadly categorized based on how elements are organized in memory and how relationships between data items are established.
+Core ClassificationsData structures divide into two primary operational branches: Primitive and Non-Primitive.
+
+                     Data Structures
+                            │
+         ┌──────────────────┴──────────────────┐
+     Primitive                            Non-Primitive
+ (int, float, char)                            │
+                        ┌──────────────────────┴──────────────────────┐
+                     Linear                                      Non-Linear
+      ┌─────────────────┼─────────────────┐              ┌────────────┴────────────┐
+   Arrays          Linked Lists     Stacks / Queues    Trees                     Graphs
+Primitive Data Structures: Built directly into the programming language core (e.g., int, float, char, pointers). They store single atomic values.Non-Primitive Data Structures: User-defined structures constructed by combining primitive types to store collections of values.Non-Primitive Breakdown: Linear vs. Non-LinearFeatureLinear Data StructuresNon-Linear Data StructuresData ArrangementSequential order (one element after another)Hierarchical or networked (multi-level)TraversalSingle run-through visits all elementsRequires specialized traversal (DFS/BFS)Memory AllocationContiguous (Arrays) or pointer chains (Lists)Node pointers branching to multiple nodesPrimary ExamplesArray, Linked List, Stack, QueueBinary Tree, Heap, Graph, Hash TableTime EfficiencySearching takes $O(n)$ in simple formsSearch/Insert can be optimized to $O(\log n)$C++ Code Demonstration: Structural Traversal TypesThe following C++ program demonstrates the practical difference between iterating through a Linear Structure (sequential array) and a Non-Linear Structure (hierarchical binary node tree).C++#include <iostream>
+#include <vector>
+
+// -------------------------------------------------------------
+// 1. Linear Example: Sequential Processing
+// Elements are traversed in a simple single-pass loop.
+// -------------------------------------------------------------
+void demonstrateLinearTraversal() {
+    std::cout << "=== Linear Data Structure (Array/Vector) ===\n";
+    std::vector<int> linearData = {10, 20, 30, 40};
+
+    for (size_t i = 0; i < linearData.size(); ++i) {
+        std::cout << "Element " << i << ": " << linearData[i] << "\n";
+    }
+    std::cout << "\n";
+}
+
+// -------------------------------------------------------------
+// 2. Non-Linear Example: Hierarchical Branching
+// Elements branch into multiple children (Binary Tree Node).
+// -------------------------------------------------------------
+struct TreeNode {
+    int data;
+    TreeNode* left;
+    TreeNode* right;
+
+    TreeNode(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+// Recursive traversal needed for non-linear structures
+void printTreeInOrder(TreeNode* root) {
+    if (root == nullptr) return;
+
+    printTreeInOrder(root->left);                     // Visit Left Branch
+    std::cout << "Tree Node Value: " << root->data << "\n"; // Visit Parent Node
+    printTreeInOrder(root->right);                    // Visit Right Branch
+}
+
+void demonstrateNonLinearTraversal() {
+    std::cout << "=== Non-Linear Data Structure (Binary Tree) ===\n";
+    
+    // Constructing a simple 2-level hierarchy
+    TreeNode* root = new TreeNode(20);
+    root->left = new TreeNode(10);
+    root->right = new TreeNode(30);
+
+    printTreeInOrder(root);
+
+    // Memory Cleanup
+    delete root->left;
+    delete root->right;
+    delete root;
+}
+
+int main() {
+    demonstrateLinearTraversal();
+    demonstrateNonLinearTraversal();
+    return 0;
+}
+Additional Operational Sub-CategoriesStatic vs. Dynamic:Static: Fixed memory size allocated at compile-time (e.g., standard C-style array int arr[100]).Dynamic: Resizable memory allocated at runtime on the heap (e.g., std::vector or custom dynamic arrays).Homogeneous vs. Heterogeneous:Homogeneous: Contains elements of identical data types (e.g., int arr[]).Heterogeneous: Combines different data types into one structure (e.g., C++ struct or std::tuple).
