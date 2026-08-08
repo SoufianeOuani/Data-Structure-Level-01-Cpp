@@ -1,0 +1,90 @@
+Data structures and databases both organize information, but they operate at different levels of the system hierarchy.
+A Data Structure manages temporary data in volatile main memory (RAM) while a program runs, whereas a Database manages persistent data stored on non-volatile media (SSD/Disk) across multiple application sessions and systems.
+Under the hood, databases rely heavily on data structures (like B-Trees, Hash Tables, and LSM-Trees) to organize their storage files on disk efficiently.
+Key Technical ComparisonFeatureData StructureDatabase (DBMS)Primary StorageVolatile RAM (Main Memory)Non-Volatile Disk / SSDLifetimeTemporary (wiped when program exits)Persistent (survives system restarts)Access SpeedNanoseconds (CPU/RAM bus direct)Milliseconds to Microseconds (Disk I/O / Network)Data ScopeSingle process runtime memoryMulti-user, multi-application systemConcurrencyManual thread sync (mutexes, locks)Built-in ACID transaction supportUnderlying TechPointers, contiguous memory, arraysB-Trees, WAL files, indexing, query engineC++ Code Demonstration: In-Memory DS vs.
+File PersistenceThe code below demonstrates the fundamental distinction: an in-memory data structure (std::unordered_map) vs. a simplified database engine model that writes serialized records to persistent storage.C++#include <iostream>
+#include <unordered_map>
+#include <fstream>
+#include <string>
+
+// -------------------------------------------------------------
+// 1. Data Structure Approach (In-RAM)
+// Fast lookup, but lost immediately when main() terminates.
+// -------------------------------------------------------------
+class InMemoryUserCache {
+private:
+    std::unordered_map<int, std::string> cache; // In-memory Hash Table
+
+public:
+    void insertUser(int id, const std::string& name) {
+        cache[id] = name; // Direct RAM pointer operation
+    }
+
+    void getUser(int id) {
+        auto it = cache.find(id);
+        if (it != cache.end()) {
+            std::cout << "[RAM DS] Found User " << id << ": " << it->second << "\n";
+        } else {
+            std::cout << "[RAM DS] User not found.\n";
+        }
+    }
+};
+
+// -------------------------------------------------------------
+// 2. Simple Persistent Database Model (On-Disk Storage)
+// Slower access due to I/O, but data persists across runs.
+// -------------------------------------------------------------
+class SimpleDiskDatabase {
+private:
+    std::string dbFilename;
+
+public:
+    SimpleDiskDatabase(const std::string& filename) : dbFilename(filename) {}
+
+    void insertUser(int id, const std::string& name) {
+        // Append mode: Write through to non-volatile disk storage
+        std::ofstream file(dbFilename, std::ios::app);
+        if (file.is_open()) {
+            file << id << "," << name << "\n";
+            file.close();
+            std::cout << "[DISK DB] Persisted User " << id << " to disk storage.\n";
+        }
+    }
+
+    void findUserOnDisk(int targetId) {
+        std::ifstream file(dbFilename);
+        std::string line;
+        bool found = false;
+
+        // Scan sequential records from disk file
+        while (std::getline(file, line)) {
+            size_t commaPos = line.find(',');
+            if (commaPos != std::string::npos) {
+                int id = std::stoi(line.substr(0, commaPos));
+                if (id == targetId) {
+                    std::string name = line.substr(commaPos + 1);
+                    std::cout << "[DISK DB] Retrieved from Disk - User " << id << ": " << name << "\n";
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) std::cout << "[DISK DB] Record not found on disk.\n";
+    }
+};
+
+int main() {
+    std::cout << "=== Part 1: In-Memory Data Structure ===\n";
+    InMemoryUserCache ramCache;
+    ramCache.insertUser(1, "Alice");
+    ramCache.getUser(1);
+
+    std::cout << "\n=== Part 2: Persistent Storage Database Model ===\n";
+    SimpleDiskDatabase diskDB("users_db.txt");
+    diskDB.insertUser(1, "Alice");
+    diskDB.findUserOnDisk(1);
+
+    return 0;
+}
+Core Relationship SummaryData Structures build the building blocks inside memory.
+Databases leverage those data structures (like B-Trees for indexes, Hash Tables for query joins) to build complete storage management software with file persistence, concurrency control, and security features.
