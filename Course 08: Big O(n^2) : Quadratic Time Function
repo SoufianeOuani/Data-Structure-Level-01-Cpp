@@ -1,0 +1,43 @@
+An algorithm runs in $O(n^2)$ or Quadratic Time when its execution time grows proportionally to the square of the input size ($n$). If the input size doubles, the number of operations quadruples ($2^2 = 4$).Key Indicators of $O(n^2)$Nested Loops: A loop over $n$ items running inside another loop over $n$ items.All-Pairs Comparison: Algorithms that compare every element in a dataset with every other element.Brute-Force Searching: Checking all possible pairs or 2D grid combinations.Operations BreakdownOperationComplexityReasonNested Iteration$O(n^2)$Outer loop runs $n$ times; inner loop runs $n$ times ($n \times n$).Bubble Sort / Insertion Sort$O(n^2)$Requires multiple passes comparing adjacent pairs in worst/average cases.Adjacency Matrix Generation$O(n^2)$Constructs an $n \times n$ matrix representing connections between $n$ nodes.C++ Code ImplementationC++#include <iostream>
+#include <vector>
+
+// 1. Finding Duplicate Pairs - O(n^2) Time | O(1) Space
+bool hasDuplicatePairs(const std::vector<int>& arr) {
+    size_t n = arr.size();
+    for (size_t i = 0; i < n; ++i) {         // Outer loop runs n times
+        for (size_t j = i + 1; j < n; ++j) { // Inner loop runs ~n/2 times average
+            if (arr[i] == arr[j]) {
+                return true; // Found a matching pair
+            }
+        }
+    }
+    return false; // Total steps: n*(n-1)/2 = O(n^2)
+}
+
+// 2. Simple Bubble Sort - O(n^2) Time | O(1) Space
+void bubbleSort(std::vector<int>& arr) {
+    size_t n = arr.size();
+    for (size_t i = 0; i < n - 1; ++i) {
+        for (size_t j = 0; j < n - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                std::swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+}
+
+int main() {
+    std::vector<int> numbers = {5, 3, 8, 3, 1};
+
+    // Check Duplicates
+    std::cout << "Has Duplicates: " << (hasDuplicatePairs(numbers) ? "Yes" : "No") << "\n";
+
+    // Bubble Sort
+    bubbleSort(numbers);
+    std::cout << "Sorted Array: ";
+    for (int num : numbers) std::cout << num << " ";
+    std::cout << "\n";
+
+    return 0;
+}
+Quick Cheat SheetTime Complexity: $O(n^2)$ (Worst & Average Case)Space Complexity: $O(1)$ auxiliary for simple nested loops, $O(n^2)$ if creating an $n \times n$ 2D matrix.Rule of Thumb: $2 \text{ Nested Loops over } n \text{ items} = O(n^2)$.
