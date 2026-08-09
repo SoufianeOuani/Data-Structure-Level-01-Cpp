@@ -1,0 +1,42 @@
+An algorithm runs in $O(\log n)$ or Logarithmic Time when its execution time grows logarithmically relative to input size ($n$). At each step, the algorithm reduces the remaining search space by a constant fraction (typically by half).Key Indicators of $O(\log n)$Divide and Conquer: Halving the dataset size on every iteration ($n \rightarrow n/2 \rightarrow n/4 \dots \rightarrow 1$).Tree Traversals: Navigating balanced trees (Binary Search Tree, AVL Tree) from root to leaf.Logarithmic Loops: Loop counters that multiply or divide by a factor (e.g., i *= 2 or i /= 2).Operations BreakdownOperationComplexityReasonBinary Search$O(\log n)$Eliminates half of a sorted array on each comparison.BST Operations$O(\log n)$Search, insertion, and deletion in a balanced Binary Search Tree.Exponentials / Pow$O(\log n)$Binary Exponentiation ($x^n$ calculated via repeated squaring).C++ Code ImplementationC++#include <iostream>
+#include <vector>
+
+// 1. Iterative Binary Search - O(log n) Time | O(1) Space
+int binarySearch(const std::vector<int>& sortedArr, int target) {
+    int low = 0;
+    int high = static_cast<int>(sortedArr.size()) - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2; // Halves the search range
+
+        if (sortedArr[mid] == target) return mid;
+        if (sortedArr[mid] < target) low = mid + 1;  // Ignore left half
+        else high = mid - 1;                         // Ignore right half
+    }
+    return -1; // Total iterations: log2(n)
+}
+
+// 2. Binary Exponentiation (x^n) - O(log n) Time | O(1) Space
+long long powerLogarithmic(long long x, int n) {
+    long long result = 1;
+    while (n > 0) {
+        if (n % 2 == 1) result *= x; // Multiply when exponent is odd
+        x *= x;                      // Square the base
+        n /= 2;                      // Halve the exponent
+    }
+    return result;
+}
+
+int main() {
+    std::vector<int> sortedData = {10, 20, 30, 40, 50, 60, 70, 80};
+
+    // Binary Search Example
+    int index = binarySearch(sortedData, 60);
+    std::cout << "Target found at index: " << index << "\n";
+
+    // Power Calculation Example (2^10)
+    std::cout << "2^10 = " << powerLogarithmic(2, 10) << "\n";
+
+    return 0;
+}
+Quick Cheat SheetTime Complexity: $O(\log n)$ (Base 2 log is standard in CS).Space Complexity: $O(1)$ auxiliary for iterative, $O(\log n)$ call stack space for recursive variants.Rule of Thumb: $\text{Halving/Dividing the problem size at each step} = O(\log n)$.
