@@ -1,0 +1,30 @@
+An algorithm runs in $O(n)$ or Linear Time when its execution time scales directly and proportionally with the size of the input dataset ($n$). Doubling the input doubles the operations.Key Indicators of $O(n)$Single Loops: A loop visiting each element in a collection from index $0$ to $n-1$.Full Data Traversals: Operations that must examine or copy every item (e.g., finding the maximum value in an unsorted list).Sequential Element Shifting: Inserting or deleting at the front of a dynamic array (std::vector), forcing $n-1$ elements to shift right/left in memory.Operations BreakdownOperationC++ Function / ApproachComplexityReasonLinear Searchstd::find(begin, end, val)$O(n)$Worst case checks all $n$ itemsVector Prependingvec.insert(vec.begin(), val)$O(n)$Shifts all existing elements rightFind Max / Minstd::max_element()$O(n)$Inspects every element onceArray Copyingstd::vector<int> copy = original;$O(n)$Copies $n$ individual values in RAMC++ Code ImplementationC++#include <iostream>
+#include <vector>
+
+// 1. Unsorted Linear Search - O(n) Time | O(1) Space
+int findElement(const std::vector<int>& arr, int target) {
+    for (size_t i = 0; i < arr.size(); ++i) { // Iterates up to n times
+        if (arr[i] == target) return static_cast<int>(i);
+    }
+    return -1;
+}
+
+// 2. Prepending to Vector - O(n) Time due to element shifting
+void prependValue(std::vector<int>& arr, int val) {
+    arr.insert(arr.begin(), val); // Internal memory shift of n elements
+}
+
+int main() {
+    std::vector<int> data = {12, 45, 23, 89, 34};
+
+    // Linear Search Example
+    int index = findElement(data, 89);
+    std::cout << "Target found at index: " << index << "\n";
+
+    // Vector Prepend Example
+    prependValue(data, 99); // Shifts [12, 45, 23, 89, 34] to make room at index 0
+    std::cout << "New First Element: " << data[0] << "\n";
+
+    return 0;
+}
+Quick Cheat SheetTime Complexity: $O(n)$ (Worst Case)Space Complexity: $O(1)$ auxiliary (if iterating without extra allocation) or $O(n)$ (if making a copy of size $n$).Rule of Thumb: $1 \text{ Single Loop over } n \text{ items} = O(n)$.
