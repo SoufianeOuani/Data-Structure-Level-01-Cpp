@@ -1,0 +1,49 @@
+An algorithm runs in $O(1)$ or Constant Time when its execution time and memory usage remain completely independent of the input size ($n$). Whether the input has 1 element or 1,000,000,000 elements, an $O(1)$ operation performs the exact same fixed number of steps.In C++, $O(1)$ operations form the ultimate performance gold standard for primitive data accesses, mathematical evaluations, and direct memory index lookups.Core Characteristics of $O(1)$ OperationsNo Loops Dependent on $n$: The code contains no loops (or only fixed-bound loops, e.g., for (int i = 0; i < 5; ++i)).Direct Addressing: Array indexing uses pointer arithmetic (address = base + index * size) to reach memory instantly.Fixed Hardware Instructions: Mathematical formulas and bitwise operations execute in single or fixed-cycle CPU instructions.Common $O(1)$ Examples in C++OperationC++ Expression / ConceptWhy it is O(1)Array Indexingarr[5]Direct pointer address computation in RAMMath Formulan * (n + 1) / 2Calculates Gauss sum in 3 CPU operations vs $O(n)$ loopStack Push/Popst.push(x) / st.pop()Updates only the top item pointerHash Table Lookup (Average)unordered_map[key]Hash function maps key directly to a bucketGetter/Setter Methodsobj.getValue()Direct memory field accessC++ Code Demonstration: $O(1)$ vs $O(n)$ ApproachesThe following C++ program contrasts an $O(n)$ iterative calculation with an $O(1)$ closed-form mathematical formula, and demonstrates direct constant-time array indexing.C++#include <iostream>
+#include <vector>
+
+// -------------------------------------------------------------
+// 1. O(n) Approach: Summing numbers from 1 to N using a loop
+// Execution time grows linearly with N.
+// -------------------------------------------------------------
+long long sumLinear(long long n) {
+    long long total = 0;
+    for (long long i = 1; i <= n; ++i) { // Runs n times
+        total += i;
+    }
+    return total;
+}
+
+// -------------------------------------------------------------
+// 2. O(1) Approach: Summing numbers using Gauss's Formula
+// Executes in exactly 3 math operations regardless of N size.
+// -------------------------------------------------------------
+long long sumConstant(long long n) {
+    return n * (n + 1) / 2; // O(1) Time | O(1) Auxiliary Space
+}
+
+// -------------------------------------------------------------
+// 3. O(1) Array Index Access via Pointer Arithmetic
+// -------------------------------------------------------------
+int getElementAtIndex(const std::vector<int>& data, size_t index) {
+    if (index < data.size()) {
+        return data[index]; // Direct O(1) lookup
+    }
+    return -1;
+}
+
+int main() {
+    long long N = 1000000000LL; // 1 Billion
+
+    std::cout << "=== O(1) vs O(n) Comparison ===\n";
+    
+    // Gauss Formula executes instantly
+    long long resultConstant = sumConstant(N);
+    std::cout << "[O(1) Constant Math] Sum of 1 to " << N << " = " << resultConstant << "\n";
+
+    // Array Lookup
+    std::vector<int> numbers = {10, 20, 30, 40, 50};
+    std::cout << "[O(1) Array Indexing] Value at index 3: " << getElementAtIndex(numbers, 3) << "\n";
+
+    return 0;
+}
+Common Pitfalls & Edge CasesMisconception: "Fewer lines of code mean $O(1)$."Reality: Calling standard library functions like std::vector::insert(arr.begin(), val) is 1 line of C++, but takes $O(n)$ time under the hood because it shifts elements in memory.Size Methods: In C++11 and later, std::vector::size() and std::list::size() are guaranteed $O(1)$. In older C++ specifications, list::size() was $O(n)$.Summary Takeaway$O(1)$ represents constant performance. When designing high-performance C++ data structures, the primary goal is often turning core operations (lookups, pushes, pops, insertions) into $O(1)$ guarantees whenever possible.
