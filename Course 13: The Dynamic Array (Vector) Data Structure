@@ -1,0 +1,86 @@
+1. What is a Vector? (Core Concept)A Vector (also known as a Dynamic Array) is a sequential container that encapsulates dynamic sizing. While traditional static arrays have a fixed capacity determined at compile time or initialization, a vector grows and shrinks automatically as elements are added or removed.Contiguous Memory: Elements are stored sequentially in memory, preserving instant indexing and high cache locality.Size vs. Capacity:Size: The actual number of elements currently stored in the vector.Capacity: The total amount of allocated memory slots available before a resize is triggered.Geometric Resizing (Doubling Strategy): When Size == Capacity and a new element is pushed, the vector allocates a new memory block (typically $2\times$ the old capacity), copies/moves the existing elements over, and deallocates the old buffer.2. Time Complexity & OperationsRandom Access (operator[], .at()): $\mathcal{O}(1)$ — Direct pointer calculation.Push Back (Amortized): $\mathcal{O}(1)$ — Instant insertion when capacity remains; expensive $\mathcal{O}(N)$ reallocations happen exponentially less often as the array grows.Push Back (Worst-case): $\mathcal{O}(N)$ — Occurs during memory reallocation and copying.Pop Back: $\mathcal{O}(1)$ — Removes the trailing element without shifting memory.Insert / Erase (Arbitrary Position): $\mathcal{O}(N)$ — Requires shifting following elements left or right.3. Resizing Lifecycle Visualization$$\text{Capacity: } 2 \xrightarrow{\text{Push 3rd Item}} \text{Allocate Cap: } 4 \xrightarrow{\text{Copy } 2 \text{ Items}} \text{Insert Item} \xrightarrow{\text{Free Old Block}} \text{Ready}$$4. Complete C++ Implementation (From Scratch)C++#include <iostream>
+#include <stdexcept>
+
+template <typename T>
+class Vector {
+private:
+    T* data;
+    size_t size;
+    size_t capacity;
+
+    void Reallocate(size_t newCapacity) {
+        T* newBlock = new T[newCapacity];
+
+        for (size_t i = 0; i < size; ++i) {
+            newBlock[i] = data[i];
+        }
+
+        delete[] data;
+        data = newBlock;
+        capacity = newCapacity;
+    }
+
+public:
+    Vector() : data(nullptr), size(0), capacity(0) {
+        Reallocate(2); // Initial base capacity
+    }
+
+    ~Vector() {
+        delete[] data;
+    }
+
+    void PushBack(const T& value) {
+        if (size >= capacity) {
+            Reallocate(capacity * 2); // Double capacity when full
+        }
+        data[size++] = value;
+    }
+
+    void PopBack() {
+        if (size > 0) {
+            --size;
+        }
+    }
+
+    T& operator[](size_t index) {
+        return data[index];
+    }
+
+    const T& operator[](size_t index) const {
+        return data[index];
+    }
+
+    size_t GetSize() const { return size; }
+    size_t GetCapacity() const { return capacity; }
+    bool IsEmpty() const { return size == 0; }
+
+    void Print() const {
+        std::cout << "Vector (Size: " << size << ", Capacity: " << capacity << "): [ ";
+        for (size_t i = 0; i < size; ++i) {
+            std::cout << data[i] << " ";
+        }
+        std::cout << "]\n";
+    }
+};
+
+int main() {
+    Vector<int> vec;
+
+    vec.PushBack(10);
+    vec.PushBack(20);
+    vec.Print(); // Size: 2, Capacity: 2
+
+    // Triggers dynamic resizing (Capacity doubles to 4)
+    vec.PushBack(30);
+    vec.Print(); // Size: 3, Capacity: 4
+
+    vec.PushBack(40);
+    vec.PushBack(50); // Triggers resizing again (Capacity doubles to 8)
+    vec.Print(); // Size: 5, Capacity: 8
+
+    vec.PopBack();
+    vec.Print(); // Size: 4, Capacity: 8
+
+    return 0;
+}
+5. SummaryFlexibility with Array Speed: Provides the performance and $\mathcal{O}(1)$ random access of static arrays while eliminating hard-coded size limits.Amortized Constant Time: Doubling capacity during reallocations ensures that the amortized time for push_back remains $\mathcal{O}(1)$.Memory Overhead: Vectors may consume more memory than currently stored elements due to reserve capacity buffers.
