@@ -1,0 +1,82 @@
+1. What is an Array? (Core Concept)An Array is a linear data structure that stores a collection of elements of the same data type in contiguous (adjacent) memory locations.
+Contiguous Memory: Elements sit side-by-side in physical RAM with no gaps.Fixed Size (Static Array): Memory is allocated once at compile time or initialization.
+Zero-Based Indexing: The first element begins at index 0.
+Direct Address Calculation: The address of any element is computed using the base address:$$\text{Address}(A[i]) = \text{Base Address} + (i \times \text{Size of Element})$$2. Time Complexity & OperationsAccess by Index: $\mathcal{O}(1)$ — Instant access because the hardware calculates memory offsets directly.Update by Index: $\mathcal{O}(1)$ — Overwrites the value at the target memory location.Search (Linear Search): $\mathcal{O}(N)$ — Requires scanning elements one by one when unordered.Insertion (End): $\mathcal{O}(1)$ — Assigns a value to the next open position (if space exists).Insertion (Beginning/Middle): $\mathcal{O}(N)$ — Requires shifting subsequent elements right.Deletion (Beginning/Middle): $\mathcal{O}(N)$ — Requires shifting subsequent elements left to close gaps.3. Memory Layout Visualization$$\begin{array}{\|c\|c\|c\|c\|c\|} \hline \text{Index } 0 & \text{Index } 1 & \text{Index } 2 & \text{Index } 3 & \text{Index } 4 \\ \hline \text{Value: } 10 & \text{Value: } 20 & \text{Value: } 30 & \text{Value: } 40 & \text{Value: } 50 \\ \hline \text{0x1000} & \text{0x1004} & \text{0x1008} & \text{0x100C} & \text{0x1010} \\ \hline \end{array}$$Each 4-byte integer moves the memory address forward by exactly 4 bytes.4. Complete C++ ImplementationC++#include <iostream>
+
+class StaticArray {
+private:
+    int data[10];
+    int size;
+    int capacity;
+
+public:
+    StaticArray() : size(0), capacity(10) {}
+
+    bool Insert(int index, int value) {
+        if (size >= capacity || index < 0 || index > size) {
+            return false;
+        }
+
+        // Shift elements to the right to make space
+        for (int i = size; i > index; --i) {
+            data[i] = data[i - 1];
+        }
+
+        data[index] = value;
+        ++size;
+        return true;
+    }
+
+    bool Delete(int index) {
+        if (index < 0 || index >= size) {
+            return false;
+        }
+
+        // Shift elements to the left to fill the gap
+        for (int i = index; i < size - 1; ++i) {
+            data[i] = data[i + 1];
+        }
+
+        --size;
+        return true;
+    }
+
+    int Get(int index) const {
+        if (index >= 0 && index < size) {
+            return data[index];
+        }
+        return -1;
+    }
+
+    void Print() const {
+        std::cout << "Array Elements: ";
+        for (int i = 0; i < size; ++i) {
+            std::cout << data[i] << " ";
+        }
+        std::cout << "\n";
+    }
+};
+
+int main() {
+    StaticArray arr;
+
+    // Insertion
+    arr.Insert(0, 10);
+    arr.Insert(1, 20);
+    arr.Insert(2, 30);
+    arr.Insert(1, 15); // Insert 15 at index 1 -> Shifts 20 and 30 right
+
+    arr.Print();
+
+    // Access
+    std::cout << "Element at index 2: " << arr.Get(2) << "\n";
+
+    // Deletion
+    arr.Delete(1); // Removes 15 -> Shifts 20 and 30 left
+    arr.Print();
+
+    return 0;
+}
+5. SummaryCache Locality: Contiguous layout maximizes CPU cache hits, making array traversals faster than pointer-based structures like Linked Lists.
+Trade-offs: Fast random access ($\mathcal{O}(1)$) comes at the cost of expensive resizing and shifting operations ($\mathcal{O}(N)$).
+Building Block: Arrays serve as the underlying foundation for other essential data structures, including Vectors, Stacks, Queues, Hash Tables, and Heaps.
