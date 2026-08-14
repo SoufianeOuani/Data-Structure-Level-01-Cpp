@@ -1,0 +1,110 @@
+1. What is a Queue? (Core Concept)A Queue is a linear data structure that adheres strictly to the FIFO (First In, First Out) principle. The first element added to the queue is always the first one to be processed and removed.Two Distinct Endpoints:Rear (Back): The end where new elements are inserted (Enqueue).Front (Head): The end where elements are accessed and removed (Dequeue).Restricted Access: Elements cannot be inserted or removed from the middle; they must wait their turn in line.Real-World Analogy: A line of customers at a ticket counter or a supermarket checkout—the first person to join the line is served first.2. Core Operations & Time ComplexityEnqueue (Push / Insert): $\mathcal{O}(1)$ — Adds an item to the Rear of the queue.Dequeue (Pop / Delete): $\mathcal{O}(1)$ — Removes the oldest item from the Front of the queue.Front / Peek (Access): $\mathcal{O}(1)$ — Inspects the element at the front without removing it.Rear / Back (Access): $\mathcal{O}(1)$ — Inspects the element at the back without removing it.IsEmpty / IsFull: $\mathcal{O}(1)$ — Checks whether the queue contains zero elements or has hit maximum capacity.Search: $\mathcal{O}(N)$ — Requires scanning or dequeuing elements sequentially.3. Real-World ApplicationsCPU Task Scheduling: Operating systems manage processes waiting for CPU time using ready queues (e.g., Round-Robin scheduling).Print Spooling: Print jobs sent to a shared printer are queued and executed in the order received.Breadth-First Search (BFS): Graph and tree traversal algorithms rely on queues to explore nodes level-by-level.Asynchronous Message Buffers: Messaging pipelines (like RabbitMQ, Kafka, or network packet buffers) handle rate-mismatches between producers and consumers using FIFO queues.4. Complete C++ Implementation (Circular Array-Based)Using a Circular Queue avoids the memory-wasting limitation of standard static arrays by wrapping indices around using the modulo operator (%).C++#include <iostream>
+
+class Queue {
+private:
+    int* data;
+    int front;
+    int rear;
+    int size;
+    int capacity;
+
+public:
+    Queue(int cap) : capacity(cap), front(0), rear(-1), size(0) {
+        data = new int[capacity];
+    }
+
+    ~Queue() {
+        delete[] data;
+    }
+
+    bool IsFull() const {
+        return size == capacity;
+    }
+
+    bool IsEmpty() const {
+        return size == 0;
+    }
+
+    bool Enqueue(int value) {
+        if (IsFull()) {
+            std::cout << "Queue Overflow! Cannot enqueue " << value << "\n";
+            return false;
+        }
+
+        // Wrap around index to reuse freed memory slots
+        rear = (rear + 1) % capacity;
+        data[rear] = value;
+        ++size;
+        return true;
+    }
+
+    bool Dequeue() {
+        if (IsEmpty()) {
+            std::cout << "Queue Underflow! Queue is empty.\n";
+            return false;
+        }
+
+        // Move front forward with wraparound
+        front = (front + 1) % capacity;
+        --size;
+        return true;
+    }
+
+    int Front() const {
+        if (IsEmpty()) {
+            std::cout << "Queue is empty.\n";
+            return -1;
+        }
+        return data[front];
+    }
+
+    int Back() const {
+        if (IsEmpty()) {
+            std::cout << "Queue is empty.\n";
+            return -1;
+        }
+        return data[rear];
+    }
+
+    void Print() const {
+        if (IsEmpty()) {
+            std::cout << "Queue: [Empty]\n";
+            return;
+        }
+
+        std::cout << "Queue (Front to Rear): ";
+        for (int i = 0; i < size; ++i) {
+            int index = (front + i) % capacity;
+            std::cout << data[index] << " ";
+        }
+        std::cout << "\n";
+    }
+};
+
+int main() {
+    Queue q(5);
+
+    // Enqueue operations
+    q.Enqueue(10);
+    q.Enqueue(20);
+    q.Enqueue(30);
+    q.Enqueue(40);
+    q.Print(); // Output: 10 20 30 40
+
+    std::cout << "Front element: " << q.Front() << "\n"; // Output: 10
+    std::cout << "Rear element:  " << q.Back() << "\n";  // Output: 40
+
+    // Dequeue operations
+    q.Dequeue();
+    q.Dequeue();
+    q.Print(); // Output: 30 40
+
+    // Circular wraparound test
+    q.Enqueue(50);
+    q.Enqueue(60);
+    q.Enqueue(70); // Uses wrapped-around slots at indices 0 and 1
+    q.Print(); // Output: 30 40 50 60 70
+
+    return 0;
+}
+5. SummaryFIFO Rule: Elements exit in the exact chronological order they entered.Dual Access Points: Separates insertion (rear) from deletion (front), unlike a Stack which operates on a single top endpoint.Circular Buffering: Circular array pointers prevent artificial overflow and achieve optimal $\mathcal{O}(1)$ time complexity for all standard queue operations.
