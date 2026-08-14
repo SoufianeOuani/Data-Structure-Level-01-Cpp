@@ -1,0 +1,52 @@
+1. Bitwise Flags (Core Concept)Instead of using multiple boolean variables for every feature, systems encode feature permissions into individual binary bits using powers of two ($2^n$). A single standard 32-bit integer can store up to 32 independent feature flags.Kronos = 1 (Binary: 00000001 | Shift: 1 << 0)M3 = 2 (Binary: 00000010 | Shift: 1 << 1)Trinity V3 = 4 (Binary: 00000100 | Shift: 1 << 2)Triton Extreme = 8 (Binary: 00001000 | Shift: 1 << 3)Pa3x All = 16 (Binary: 00010000 | Shift: 1 << 4)Pa900 = 32 (Binary: 00100000 | Shift: 1 << 5)Pa2x = 64 (Binary: 01000000 | Shift: 1 << 6)Pa600 = 128 (Binary: 10000000 | Shift: 1 << 7)2. Bitwise OperationsGrant Access (Bitwise OR |): Combines permission flags by setting bits to 1.Verify Access (Bitwise AND &): Masks and checks if a specific feature bit is active.Revoke Access (Bitwise NOT ~ & AND &): Inverts the target bit and clears it to 0.3. Key Generation & Decryption Lifecycle$$\text{Permissions Mask } (73) \longrightarrow \text{Cipher Key } (10168) \longrightarrow \text{Decrypt / Decode } (73) \longrightarrow \text{Feature Gating}$$4. Complete C++ ImplementationC++#include <iostream>
+
+enum PianoModel : unsigned int {
+    KRONOS         = 1 << 0,
+    M3             = 1 << 1,
+    TRINITY_V3     = 1 << 2,
+    TRITON_EXTREME = 1 << 3,
+    PA3X           = 1 << 4,
+    PA900          = 1 << 5,
+    PA2X           = 1 << 6,
+    PA600          = 1 << 7
+};
+
+const unsigned int SECRET_SALT = 0xABCD;
+const unsigned int MULTIPLIER  = 137;
+
+unsigned int GenerateLicenseKey(unsigned int permissions) {
+    return (permissions * MULTIPLIER) ^ SECRET_SALT;
+}
+
+unsigned int DecryptLicenseKey(unsigned int licenseKey) {
+    return (licenseKey ^ SECRET_SALT) / MULTIPLIER;
+}
+
+bool HasAccess(unsigned int userPermissions, PianoModel model) {
+    return (userPermissions & model) == model;
+}
+
+int main() {
+    unsigned int package = KRONOS | TRITON_EXTREME | PA2X;
+    unsigned int licenseKey = GenerateLicenseKey(package);
+    unsigned int activePermissions = DecryptLicenseKey(licenseKey);
+
+    std::cout << "Kronos: " 
+              << (HasAccess(activePermissions, KRONOS) ? "UNLOCKED" : "LOCKED") 
+              << "\n";
+
+    std::cout << "M3: " 
+              << (HasAccess(activePermissions, M3) ? "UNLOCKED" : "LOCKED") 
+              << "\n";
+
+    std::cout << "Triton Extreme: " 
+              << (HasAccess(activePermissions, TRITON_EXTREME) ? "UNLOCKED" : "LOCKED") 
+              << "\n";
+
+    std::cout << "Pa900: " 
+              << (HasAccess(activePermissions, PA900) ? "UNLOCKED" : "LOCKED") 
+              << "\n";
+
+    return 0;
+}
+5. SummaryMemory Efficiency: Stores dozens of discrete permissions inside a single 4-byte integer.Execution Speed: Evaluates access rights in $\mathcal{O}(1)$ time using native CPU-level bitwise instructions.Security: Allows packaging access permissions directly into serialized license strings without exposing plain configuration data.
