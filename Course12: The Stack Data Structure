@@ -1,0 +1,86 @@
+1. What is a Stack? (Core Concept)A Stack is a linear data structure that follows the LIFO (Last In, First Out) principle. The last element added to the stack is always the first one to be removed.Single Entry Point (Top): All additions (push) and removals (pop) happen exclusively at one end, called the Top.Restricted Access: You cannot directly access elements stored in the middle or at the bottom without first removing the elements above them.Real-World Analogy: A stack of dinner plates or a deck of cards—you place plates on top and take them off from the top.2. Core Operations & Time ComplexityPush (Insert): $\mathcal{O}(1)$ — Adds an element to the top of the stack.Pop (Delete): $\mathcal{O}(1)$ — Removes the top element from the stack.Peek / Top (Access): $\mathcal{O}(1)$ — Returns the value of the top element without removing it.IsEmpty / IsFull: $\mathcal{O}(1)$ — Checks whether the stack has zero elements or has reached its capacity limit.Search: $\mathcal{O}(N)$ — Requires popping elements sequentially to locate a target value.3. Real-World ApplicationsFunction Call Stack: Manages active functions, local variables, and return addresses during program execution (recursion tracking).Undo / Redo Mechanisms: Tracks user operations in text editors and graphic software so changes can be reverted in reverse order.Syntax Parsing & Balanced Parentheses: Verifies balanced symbols (e.g., matching {, [, () in compilers and interpreters.Expression Evaluation: Converts and evaluates expressions between Infix, Postfix, and Prefix notations.4. Complete C++ Implementation (Array-Based)C++#include <iostream>
+
+class Stack {
+private:
+    int* data;
+    int topIndex;
+    int capacity;
+
+public:
+    Stack(int cap) : capacity(cap), topIndex(-1) {
+        data = new int[capacity];
+    }
+
+    ~Stack() {
+        delete[] data;
+    }
+
+    bool IsFull() const {
+        return topIndex == capacity - 1;
+    }
+
+    bool IsEmpty() const {
+        return topIndex == -1;
+    }
+
+    bool Push(int value) {
+        if (IsFull()) {
+            std::cout << "Stack Overflow! Cannot push " << value << "\n";
+            return false;
+        }
+        data[++topIndex] = value;
+        return true;
+    }
+
+    bool Pop() {
+        if (IsEmpty()) {
+            std::cout << "Stack Underflow! Stack is empty.\n";
+            return false;
+        }
+        --topIndex;
+        return true;
+    }
+
+    int Top() const {
+        if (IsEmpty()) {
+            std::cout << "Stack is empty.\n";
+            return -1;
+        }
+        return data[topIndex];
+    }
+
+    void Print() const {
+        if (IsEmpty()) {
+            std::cout << "Stack: [Empty]\n";
+            return;
+        }
+        std::cout << "Stack (Top to Bottom): ";
+        for (int i = topIndex; i >= 0; --i) {
+            std::cout << data[i] << " ";
+        }
+        std::cout << "\n";
+    }
+};
+
+int main() {
+    Stack s(5);
+
+    // Push operations
+    s.Push(10);
+    s.Push(20);
+    s.Push(30);
+    s.Print(); // Output: 30 20 10
+
+    // Top element
+    std::cout << "Current Top: " << s.Top() << "\n"; // Output: 30
+
+    // Pop operation
+    s.Pop();
+    s.Print(); // Output: 20 10
+
+    std::cout << "New Top after Pop: " << s.Top() << "\n"; // Output: 20
+
+    return 0;
+}
+5. SummaryLIFO Rule: The newest item is always processed first.
+High Efficiency: Core actions (Push, Pop, Top) execute in deterministic $\mathcal{O}(1)$ constant time with no memory shifting required.Underflow & Overflow: Stacks must handle boundary conditions when attempting to pop from an empty structure (underflow) or push into a full, fixed-size structure (overflow).
