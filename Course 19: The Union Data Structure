@@ -1,0 +1,69 @@
+1. What is a Union? (Core Concept)A Union is a user-defined composite data type in C and C++ that allows storing different data types in the same memory location. While a struct allocates separate memory for each of its members, a union allocates only enough memory to hold its largest single member.Shared Memory: All members share the exact same starting memory address.Mutual Exclusivity: A union can hold only one valid member value at any given time. Writing to one member overwrites the data of previously stored members.Memory Conservation: The total size of a union is equal to the size of its largest member (plus any necessary alignment padding).2. Memory Layout: Struct vs. UnionAssume a 4-byte int, an 8-byte double, and a 1-byte char:Struct Memory Footprint:Allocates memory for all members sequentially.$$\text{sizeof}(\text{struct}) = 4\text{ (int)} + 8\text{ (double)} + 1\text{ (char)} + \text{Padding} \approx \mathbf{16\text{ bytes}}$$Union Memory Footprint:Overlaps all members at offset $0$. Size is determined strictly by the largest member (double).$$\text{sizeof}(\text{union}) = \max(4, 8, 1) = \mathbf{8\text{ bytes}}$$$$\begin{array}{\|c\|} \hline \text{Byte 0 to Byte 7: Shared 8-Byte Buffer} \\ \hline \text{char (Byte 0)} \quad \vert{} \quad \text{int (Bytes 0--3)} \quad \vert{} \quad \text{double (Bytes 0--7)} \\ \hline \end{array}$$3. Real-World ApplicationsMemory-Constrained Systems & Embedded Devices: Conserving RAM on microcontrollers where peripheral registers or network packets hold mutually exclusive data formats.Type Punning & Low-Level Serialization: Reinterpreting raw binary representations (e.g., inspecting individual bytes of a floating-point number or an IP address integer).Tagged / Variant Unions: Building dynamic variant types (like std::variant) that safely store one of several possible data types alongside an identifier tag.4. Complete C++ ImplementationC++#include <iostream>
+#include <string>
+
+// 1. Basic Raw Union
+union DataPayload {
+    int intVal;
+    float floatVal;
+    char charVal;
+};
+
+// 2. Tagged Union Pattern (Safe Usage with Type Identification)
+enum class DataType {
+    INTEGER,
+    FLOAT,
+    CHAR
+};
+
+struct SafeVariant {
+    DataType type;
+    union {
+        int intVal;
+        float floatVal;
+        char charVal;
+    } data;
+};
+
+void PrintVariant(const SafeVariant& v) {
+    std::cout << "Variant Content: ";
+    switch (v.type) {
+        case DataType::INTEGER:
+            std::cout << "[Integer] " << v.data.intVal << "\n";
+            break;
+        case DataType::FLOAT:
+            std::cout << "[Float] " << v.data.floatVal << "\n";
+            break;
+        case DataType::CHAR:
+            std::cout << "[Char] " << v.data.charVal << "\n";
+            break;
+    }
+}
+
+int main() {
+    // Basic Union Demonstration
+    DataPayload payload;
+    std::cout << "Size of DataPayload Union: " << sizeof(payload) << " bytes\n\n";
+
+    payload.intVal = 105;
+    std::cout << "payload.intVal:   " << payload.intVal << "\n";
+
+    // Overwrite shared memory with a float
+    payload.floatVal = 3.14159f;
+    std::cout << "payload.floatVal: " << payload.floatVal << "\n";
+
+    // Accessing intVal now reads corrupted/reinterpreted float bits
+    std::cout << "payload.intVal (Reinterpreted): " << payload.intVal << "\n\n";
+
+    // Tagged Union Demonstration
+    SafeVariant var;
+    var.type = DataType::INTEGER;
+    var.data.intVal = 42;
+    PrintVariant(var);
+
+    var.type = DataType::FLOAT;
+    var.data.floatVal = 99.95f;
+    PrintVariant(var);
+
+    return 0;
+}
+5. SummarySingle Slot Architecture: Every field points to the exact same memory offset.Footprint Optimization: Cuts memory usage significantly when handling polymorphic or mutually exclusive data models.Modern Alternative: In modern C++ (C++17 and later), std::variant is preferred over raw unions for high-level programming because it provides type-safe, exception-aware tagged union functionality automatically.
