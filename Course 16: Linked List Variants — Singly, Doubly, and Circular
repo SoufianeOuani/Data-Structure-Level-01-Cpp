@@ -1,0 +1,104 @@
+1. Overview of Linked List TypesWhile all linked lists use dynamically allocated nodes connected by pointers, they differ in how nodes reference each other:Singly Linked List (SLL): Each node points forward only to the next node. Traversal is strictly unidirectional.Doubly Linked List (DLL): Each node contains two pointers (next and prev), allowing bidirectional traversal (forward and backward).Circular Linked List (CLL): The last node points back to the first node instead of nullptr, forming an endless ring. Can be implemented as singly or doubly circular.2. Structural & Pointer ComparisonSingly Linked List Node:Stores data and next pointer.Termination: Tail->next == nullptr.Visual: [Head] -> [10 | *] -> [20 | *] -> [30 | nullptr]Doubly Linked List Node:Stores data, next pointer, and prev pointer.Termination: Head->prev == nullptr and Tail->next == nullptr.Visual: nullptr <- [* | 10 | *] <-> [* | 20 | *] <-> [* | 30 | *] -> nullptrCircular Singly Linked List:Stores data and next pointer.Termination: No nullptr. Tail->next == Head.Visual: [Head] -> [10 | *] -> [20 | *] -> [30 | *] --(loops back to Head)-->3. Trade-offs & ComplexityTraversal Capability:SLL: Forward only.DLL: Forward and backward with equal ease.CLL: Continuous loop traversal from any starting node.Deletion with Node Pointer Given:SLL: $\mathcal{O}(N)$ — Requires scanning from Head to find the predecessor node.DLL: $\mathcal{O}(1)$ — Immediate deletion using node->prev and node->next.Memory Overhead:SLL: 1 pointer per node (next).DLL: 2 pointers per node (next + prev) — consumes more heap memory per node.CLL: 1 pointer per node (if singly circular) or 2 (if doubly circular).4. Complete C++ ImplementationC++#include <iostream>
+
+// 1. Singly Linked List Node
+struct SNode {
+    int data;
+    SNode* next;
+    SNode(int val) : data(val), next(nullptr) {}
+};
+
+// 2. Doubly Linked List Node
+struct DNode {
+    int data;
+    DNode* next;
+    DNode* prev;
+    DNode(int val) : data(val), next(nullptr), prev(nullptr) {}
+};
+
+// --- Singly Linked List Operations ---
+void PrintSinglyList(SNode* head) {
+    std::cout << "SLL: ";
+    SNode* temp = head;
+    while (temp != nullptr) {
+        std::cout << temp->data << " -> ";
+        temp = temp->next;
+    }
+    std::cout << "nullptr\n";
+}
+
+// --- Doubly Linked List Operations ---
+void InsertDoublyHead(DNode*& head, int val) {
+    DNode* newNode = new DNode(val);
+    newNode->next = head;
+    if (head != nullptr) {
+        head->prev = newNode;
+    }
+    head = newNode;
+}
+
+void PrintDoublyForward(DNode* head) {
+    std::cout << "DLL Forward:  ";
+    DNode* temp = head;
+    while (temp != nullptr) {
+        std::cout << temp->data << " <-> ";
+        temp = temp->next;
+    }
+    std::cout << "nullptr\n";
+}
+
+void PrintDoublyBackward(DNode* tail) {
+    std::cout << "DLL Backward: ";
+    DNode* temp = tail;
+    while (temp != nullptr) {
+        std::cout << temp->data << " <-> ";
+        temp = temp->prev;
+    }
+    std::cout << "nullptr\n";
+}
+
+// --- Circular Singly Linked List Operations ---
+void PrintCircularList(SNode* head) {
+    if (head == nullptr) return;
+
+    std::cout << "CLL: ";
+    SNode* temp = head;
+    do {
+        std::cout << temp->data << " -> ";
+        temp = temp->next;
+    } while (temp != head);
+    std::cout << "(Back to Head: " << head->data << ")\n";
+}
+
+int main() {
+    // --- Test Singly Linked List ---
+    SNode* sHead = new SNode(10);
+    sHead->next = new SNode(20);
+    sHead->next->next = new SNode(30);
+    PrintSinglyList(sHead);
+
+    // --- Test Doubly Linked List ---
+    DNode* dHead = nullptr;
+    InsertDoublyHead(dHead, 30);
+    InsertDoublyHead(dHead, 20);
+    InsertDoublyHead(dHead, 10);
+    PrintDoublyForward(dHead);
+
+    // Find tail to demonstrate backward traversal
+    DNode* dTail = dHead;
+    while (dTail->next != nullptr) {
+        dTail = dTail->next;
+    }
+    PrintDoublyBackward(dTail);
+
+    // --- Test Circular Singly Linked List ---
+    SNode* cHead = new SNode(100);
+    SNode* cNode2 = new SNode(200);
+    SNode* cNode3 = new SNode(300);
+    cHead->next = cNode2;
+    cNode2->next = cNode3;
+    cNode3->next = cHead; // Close the loop back to head
+    PrintCircularList(cHead);
+
+    return 0;
+}
+5. SummarySingly Linked List: Lowest memory footprint, suitable for simple linear forward workflows.Doubly Linked List: Ideal when bidirectional navigation or $\mathcal{O}(1)$ node removal (e.g., LRU caches, browser history) is needed.Circular Linked List: Ideal for cyclic workloads where processing wraps around continuously (e.g., Round-Robin task schedulers, playlist looping).
