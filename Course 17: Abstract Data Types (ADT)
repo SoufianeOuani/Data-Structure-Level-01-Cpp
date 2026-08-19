@@ -1,0 +1,89 @@
+1. What is an Abstract Data Type (ADT)?An Abstract Data Type (ADT) is a mathematical and conceptual model for data structures. It defines what operations can be performed on the data and what behaviors are expected, without specifying how these operations are implemented in code.Interface vs. Implementation: An ADT specifies the public interface (functions, inputs, outputs, preconditions). The underlying concrete data structure provides the implementation (memory allocation, algorithms, pointers, arrays).Data Abstraction & Encapsulation: The user interacts exclusively with high-level methods (e.g., Push(), Pop(), Insert()) while the internal representation remains hidden.Separation of Concerns: You can completely rewrite the internal implementation (e.g., switching a Stack from an array to a linked list) without breaking client code that depends on the ADT interface.2. ADT vs. Data StructureAbstract Data Type (The Specification):Logical view ("What does it do?").Examples: List ADT, Stack ADT, Queue ADT, Map/Dictionary ADT, Priority Queue ADT.Data Structure (The Implementation):Physical memory view ("How does it work in RAM?").Examples: Dynamic Array (std::vector), Singly Linked List, Doubly Linked List, Circular Array, Binary Heap.$$\text{ADT (Interface / Concept)} \xrightarrow{\quad\text{Implemented by}\quad} \text{Data Structure (Arrays, Nodes, Pointers)}$$3. Classic ADT Example: The List ADTA List ADT specifies a sequential collection with the following contract:Insert(index, value): Insert an element at a specified position.Remove(index): Remove the element at a specified position.Get(index): Retrieve the element at a specified position.Size(): Return the total number of elements.IsEmpty(): Check if the collection contains zero elements.This contract can be implemented using either a contiguous Dynamic Array or a pointer-based Linked List.4. Complete C++ Implementation (Pure Abstract Class Interface)In C++, an ADT is represented using an Abstract Class with pure virtual functions (virtual ... = 0).C++#include <iostream>
+#include <stdexcept>
+
+// Step 1: The ADT Interface (Pure Contract)
+template <typename T>
+class IListADT {
+public:
+    virtual ~IListADT() {}
+    virtual void Add(const T& value) = 0;
+    virtual void RemoveAt(int index) = 0;
+    virtual T Get(int index) const = 0;
+    virtual int GetSize() const = 0;
+    virtual bool IsEmpty() const = 0;
+};
+
+// Step 2: Concrete Implementation A (Array-Based)
+template <typename T>
+class ArrayList : public IListADT<T> {
+private:
+    T* buffer;
+    int capacity;
+    int count;
+
+    void Resize() {
+        capacity *= 2;
+        T* newBuffer = new T[capacity];
+        for (int i = 0; i < count; ++i) {
+            newBuffer[i] = buffer[i];
+        }
+        delete[] buffer;
+        buffer = newBuffer;
+    }
+
+public:
+    ArrayList(int initCap = 4) : capacity(initCap), count(0) {
+        buffer = new T[capacity];
+    }
+
+    ~ArrayList() override {
+        delete[] buffer;
+    }
+
+    void Add(const T& value) override {
+        if (count == capacity) Resize();
+        buffer[count++] = value;
+    }
+
+    void RemoveAt(int index) override {
+        if (index < 0 || index >= count) throw std::out_of_range("Index error");
+        for (int i = index; i < count - 1; ++i) {
+            buffer[i] = buffer[i + 1];
+        }
+        --count;
+    }
+
+    T Get(int index) const override {
+        if (index < 0 || index >= count) throw std::out_of_range("Index error");
+        return buffer[index];
+    }
+
+    int GetSize() const override { return count; }
+    bool IsEmpty() const override { return count == 0; }
+};
+
+// Step 3: Client code interacts solely with the ADT interface
+void PrintListInfo(const IListADT<int>& list) {
+    std::cout << "List Size: " << list.GetSize() << " | Elements: ";
+    for (int i = 0; i < list.GetSize(); ++i) {
+        std::cout << list.Get(i) << " ";
+    }
+    std::cout << "\n";
+}
+
+int main() {
+    // Polymorphic instantiation through the ADT pointer/reference
+    IListADT<int>* myList = new ArrayList<int>();
+
+    myList->Add(10);
+    myList->Add(20);
+    myList->Add(30);
+    PrintListInfo(*myList); // Size: 3 | Elements: 10 20 30
+
+    myList->RemoveAt(1);    // Removes 20
+    PrintListInfo(*myList); // Size: 2 | Elements: 10 30
+
+    delete myList;
+    return 0;
+}
+5. SummaryContract First: ADTs define the interface and behavioral guarantees without tying code to concrete memory layouts.Interchangeability: Writing systems against ADT interfaces enables modular swapping of underlying structures for optimization without refactoring high-level logic.Standard Library Alignment: C++ STL containers (such as std::stack and std::queue) are container adapters acting as concrete realizations of fundamental ADT concepts.
