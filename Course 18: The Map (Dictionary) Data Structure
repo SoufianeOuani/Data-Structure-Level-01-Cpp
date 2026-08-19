@@ -1,0 +1,45 @@
+1. What is a Map? (Core Concept)A Map (also known as an Associative Array, Dictionary, or Symbol Table) is an Abstract Data Type (ADT) that stores data in Key-Value pairs ($\langle \text{Key}, \text{Value} \rangle$).Key-Value Mapping: Each unique Key is associated with exactly one Value.Unique Keys: Duplicate keys are not allowed; inserting an existing key overwrites its mapped value.Content-Based Lookup: Instead of accessing elements via numeric indices ($0, 1, 2, \dots$), values are retrieved directly using their associated keys (e.g., "user_id", license codes, employee numbers).2. Ordered Map vs. Unordered MapIn standard systems programming (such as C++ STL), maps are primarily implemented in two ways:Ordered Map (std::map):Underlying Structure: Self-Balancing Binary Search Tree (Red-Black Tree).Key Ordering: Keys are strictly sorted in ascending order.Time Complexity: $\mathcal{O}(\log N)$ for Search, Insert, and Delete.Unordered Map (std::unordered_map):Underlying Structure: Hash Table with buckets.Key Ordering: Keys are stored in arbitrary/hash order.Time Complexity: Average $\mathcal{O}(1)$, Worst-case $\mathcal{O}(N)$ (due to hash collisions).3. Core Operations & Time ComplexityInsert / Assign (map[key] = val):Ordered Map: $\mathcal{O}(\log N)$Unordered Map: $\mathcal{O}(1)$ averageFind / Search (map.find(key)):Ordered Map: $\mathcal{O}(\log N)$Unordered Map: $\mathcal{O}(1)$ averageDelete / Erase (map.erase(key)):Ordered Map: $\mathcal{O}(\log N)$Unordered Map: $\mathcal{O}(1)$ averageIteration:Ordered Map: $\mathcal{O}(N)$ in sorted orderUnordered Map: $\mathcal{O}(N)$ in non-deterministic order4. Real-World ApplicationsLicense & Permission Registries: Mapping serial key strings directly to permission bitmasks or user profiles.Symbol Tables in Compilers: Storing identifier names (variable/function names) mapped to their memory offsets and data types.Frequency Counting & Caching: Tracking word frequencies in documents or implementing in-memory key-value caches (like Redis).Database Indexing: Associating primary keys directly with table record pointers.5. Complete C++ ImplementationC++#include <iostream>
+#include <string>
+#include <map>
+#include <unordered_map>
+
+int main() {
+    // 1. Ordered Map (std::map - Red-Black Tree backend)
+    std::map<std::string, unsigned int> pianoPermissions;
+
+    // Insertion
+    pianoPermissions["DKHSF-PYHQ8"] = 73;  // Kronos + Triton + Pa2x
+    pianoPermissions["ABCD9-WXYZ1"] = 1;   // Kronos only
+    pianoPermissions["KLMN2-OPQR5"] = 128; // Pa600 only
+
+    // Lookup / Access
+    std::string searchKey = "DKHSF-PYHQ8";
+    if (pianoPermissions.find(searchKey) != pianoPermissions.end()) {
+        std::cout << "[Ordered Map] Key Found: " << searchKey 
+                  << " -> Permissions Mask: " << pianoPermissions[searchKey] << "\n";
+    }
+
+    // Iteration (Always prints alphabetically by key)
+    std::cout << "\n[Ordered Map Iteration - Sorted by Key]:\n";
+    for (const auto& pair : pianoPermissions) {
+        std::cout << "  Key: " << pair.first << " | Value: " << pair.second << "\n";
+    }
+
+    // 2. Unordered Map (std::unordered_map - Hash Table backend)
+    std::unordered_map<int, std::string> instrumentCatalog;
+    instrumentCatalog[1]   = "Kronos";
+    instrumentCatalog[8]   = "Triton Extreme";
+    instrumentCatalog[64]  = "Pa2x";
+    instrumentCatalog[128] = "Pa600";
+
+    // O(1) Average Lookup
+    int targetId = 8;
+    std::cout << "\n[Unordered Map] ID " << targetId 
+              << " corresponds to: " << instrumentCatalog[targetId] << "\n";
+
+    // Deletion
+    pianoPermissions.erase("ABCD9-WXYZ1");
+
+    return 0;
+}
+6. SummaryDirect Association: Maps eliminate the need for linear scans by binding unique keys directly to data values.Choosing the Right Type: Use std::map when elements must stay sorted or deterministic traversal is required; use std::unordered_map when raw $\mathcal{O}(1)$ lookup speed is paramount.Collision Handling: Hash-based maps rely on good hash functions and collision resolution strategies (separate chaining or open addressing) to sustain constant-time performance.
